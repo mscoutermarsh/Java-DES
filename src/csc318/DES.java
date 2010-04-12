@@ -6,12 +6,37 @@ package csc318;
  * 
  */
 public class DES {
+	
+	private String key;
+	private String message;
+
+	public String getKey() {
+		return key;
+	}
+
+	public void setKey(String key) {
+		this.key = key;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
 
 	public static void main(String[] args) {
-		DES encrypter = new DES();
-		String message = "0100010111010001000011110111110100010110110011001010001101010010";
-		String pc1 = encrypter.pc1(message);
-		System.out.println("Message: " + message);
+		DES DES = new DES();
+		DES.setMessage("0100010111010001000011110111110100010110110011001010001101010010");
+		DES.setKey("0110001001010001110010110010110010111100111100101010100000111011");
+		
+		DES.shiftBits("1110",1);
+		
+		String key1 = DES.removeParityBits(DES.getKey());
+		
+		String pc1 = DES.pc1(DES.getMessage());
+		System.out.println("Message: " + DES.getMessage());
 		System.out.println("After initial permutation:");
 		System.out.println(pc1);
 
@@ -23,11 +48,16 @@ public class DES {
 		System.out.println("R0:" + R0);
 		
 		// expand r... E(r)
-		String Er = encrypter.E(R0);
+		String Er = DES.E(R0);
 		
-		String key1 = encrypter.removeParityBits("0110001001010001110010110010110010111100111100101010100000111011");
+		
 		
 
+	}
+	
+	private String[] generateKeys(String key){
+		
+		return null;
 	}
 
 	// initial permutation
@@ -45,19 +75,34 @@ public class DES {
 		return m;
 	}
 	
-	// initial permutation
-	private String keyPermutation(String input) {
+	// initial key permutation
+	private String keyPermutation1(String input) {
 		int[] p = {57,49,41,33,25,17,9,1,58,50,42,34,26,18,
 				10,2,59,51,43,35,27,19,11,3,60,52,44,36,
 				63,55,47,39,31,23,15,7,62,54,46,38,30,22,
 				14,6,61,53,45,37,29,21,13,5,28,20,12,4};
 
-		String m = "";
+		String k = "";
 
 		for (int i = 0; i < (p.length); i++) {
-			m += input.substring(p[i] - 1, p[i]);
+			k += input.substring(p[i] - 1, p[i]);
 		}
-		return m;
+		return k;
+	}
+	
+	// final key permutation
+	private String keyPermutation2(String input) {
+		int[] p = {14,17,11,24,1,5,3,28,15,6,21,10,
+				23,19,12,4,26,8,16,7,27,20,13,2,
+				41,52,31,37,47,55,30,40,51,45,33,48,
+				44,49,39,56,34,53,46,42,50,36,29,32};
+
+		String k = "";
+
+		for (int i = 0; i < (p.length); i++) {
+			k += input.substring(p[i] - 1, p[i]);
+		}
+		return k;
 	}
 
 	// R expansion
@@ -72,6 +117,24 @@ public class DES {
 			r += input.substring(e[i] - 1, e[i]);
 		}
 		return r;
+	}
+	
+	// shifts bits to the left
+	private String shiftBits(String input, int round) {
+		int[] shift = {1,1,2,2,2,2,2,2,1,2,2,2,2,2,2,1};
+		int[] shifted = new int[input.length()] ;
+		
+		round = round - 1;
+		
+		for(int i = 0; i < input.length(); i++){
+			shifted[(i+shift[round]) % input.length()] = Integer.parseInt(input.substring(i, i+1));
+		}
+		
+		String out = "";
+		for(int i = 0; i < shifted.length; i++){
+			out += shifted[i];
+		}
+		return shifted.toString();
 	}
 	
 	private String removeParityBits(String key) {
