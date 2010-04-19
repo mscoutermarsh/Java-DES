@@ -32,10 +32,8 @@ public class DES {
 	public static void main(String[] args) {
 		DES DES = new DES();
 
-		DES
-				.setMessage("0100010111010001000011110111110100010110110011001010001101010010");
-		DES
-				.setKey("0110001001010001110010110010110010111100111100101010100000111011");
+		DES.setMessage("0100010111010001000011110111110100010110110011001010001101010010");
+		DES.setKey("0110001001010001110010110010110010111100111100101010100000111011");
 		DES.generateKeys(DES.getKey());
 		String cyphertext = DES.encrypt();
 		System.out.println("Cyper Text: ");
@@ -127,10 +125,6 @@ public class DES {
 	
 	private String decrypt(String cypherText) {
 		String pc1 = pc1(cypherText);
-		System.out.println("Message: ");
-		System.out.println(cypherText);
-		System.out.println("After initial permutation:");
-		System.out.println(pc1);
 
 		String[] L = new String[16];
 		String[] R = new String[16];
@@ -335,18 +329,6 @@ public class DES {
 		return k;
 	}
 	
-	private String cPermutation(String input) {
-		int[] p = { 14, 17, 11, 24, 1, 5, 3, 28, 15, 6, 21, 10, 23, 19, 12, 4,
-				26, 8, 16, 7, 27, 20, 13, 2, 41, 52, 31, 37, 47, 55, 30, 40,
-				51, 45, 33, 48, 44, 49, 39, 56, 34, 53, 46, 42, 50, 36, 29, 32 };
-
-		String k = "";
-
-		for (int i = 0; i < (p.length); i++) {
-			k += input.substring(p[i] - 1, p[i]);
-		}
-		return k;
-	}
 
 	// R expansion
 	private String E(String input) {
@@ -379,14 +361,6 @@ public class DES {
 			out += shifted[i];
 		}
 		return out;
-	}
-
-	private String removeParityBits(String key) {
-		String key1 = "";
-		for (int i = 0; i < (key.length() / 8); i++) {
-			key1 += key.substring((i * 8), ((i * 8) + 7));
-		}
-		return key1;
 	}
 
 	// performs xor function using x1 and x2.
