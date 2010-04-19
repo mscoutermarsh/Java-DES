@@ -1,8 +1,5 @@
 package csc318;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-
 /**
  * @author mscoutermarsh
  * @date 4/11/2010
@@ -41,8 +38,10 @@ public class DES {
 				.setKey("0110001001010001110010110010110010111100111100101010100000111011");
 		DES.generateKeys(DES.getKey());
 		String cyphertext = DES.encrypt();
-		System.out.println("Cyper Text: " + cyphertext);
-		System.out.println("Decrypted: " + DES.decrypt(cyphertext));
+		System.out.println("Cyper Text: ");
+		System.out.println(cyphertext);
+		System.out.println("Decrypted: ");
+		System.out.println(DES.decrypt(cyphertext));
 	}
 
 	private String cPermute(String input) {
@@ -59,12 +58,15 @@ public class DES {
 
 	private String encrypt() {
 		String pc1 = pc1(getMessage());
-		System.out.println("Message: " + getMessage());
+		System.out.println("Message: ");
+		System.out.println(getMessage());
 		System.out.println("After initial permutation:");
 		System.out.println(pc1);
 
 		String[] L = new String[16];
 		String[] R = new String[16];
+		
+		String[] Rtemp = new String[16];
 		
 		L[0] = pc1.substring(0, 32);
 		R[0] = pc1.substring(32);
@@ -78,15 +80,15 @@ public class DES {
 			R[i] = E(R[i-1]);
 
 			// xor E(R) with the current key
-			R[i] = xor(R[i], keys[i-1]);
-			B[1] = R[i].substring(0, 6);
-			B[2] = R[i].substring(6, 12);
-			B[3] = R[i].substring(12, 18);
-			B[4] = R[i].substring(18, 24);
-			B[5] = R[i].substring(24, 30);
-			B[6] = R[i].substring(30, 36);
-			B[7] = R[i].substring(36, 42);
-			B[8] = R[i].substring(42);
+			Rtemp[i] = xor(R[i], keys[i-1]);
+			B[1] = Rtemp[i].substring(0, 6);
+			B[2] = Rtemp[i].substring(6, 12);
+			B[3] = Rtemp[i].substring(12, 18);
+			B[4] = Rtemp[i].substring(18, 24);
+			B[5] = Rtemp[i].substring(24, 30);
+			B[6] = Rtemp[i].substring(30, 36);
+			B[7] = Rtemp[i].substring(36, 42);
+			B[8] = Rtemp[i].substring(42);
 
 			// run B values thru sboxes.
 			String[] C = new String[9];
@@ -113,7 +115,7 @@ public class DES {
 			}
 			cFinal = cPermute(cFinal);
 			
-			R[i] = xor(L[i-1],keys[i-1]); 
+			R[i] = xor(L[i-1],cFinal); 
 
 		}
 		
@@ -123,12 +125,17 @@ public class DES {
 		
 	}
 	
-	private String decrypt(String cyphertext) {
-		String pc1 = pc1(cyphertext);
-
+	private String decrypt(String cypherText) {
+		String pc1 = pc1(cypherText);
+		System.out.println("Message: ");
+		System.out.println(cypherText);
+		System.out.println("After initial permutation:");
+		System.out.println(pc1);
 
 		String[] L = new String[16];
 		String[] R = new String[16];
+		
+		String[] Rtemp = new String[16];
 		
 		L[0] = pc1.substring(0, 32);
 		R[0] = pc1.substring(32);
@@ -142,15 +149,15 @@ public class DES {
 			R[i] = E(R[i-1]);
 
 			// xor E(R) with the current key
-			R[i] = xor(R[i], keys[keys.length - i]);
-			B[1] = R[i].substring(0, 6);
-			B[2] = R[i].substring(6, 12);
-			B[3] = R[i].substring(12, 18);
-			B[4] = R[i].substring(18, 24);
-			B[5] = R[i].substring(24, 30);
-			B[6] = R[i].substring(30, 36);
-			B[7] = R[i].substring(36, 42);
-			B[8] = R[i].substring(42);
+			Rtemp[i] = xor(R[i], keys[i-1]);
+			B[1] = Rtemp[i].substring(0, 6);
+			B[2] = Rtemp[i].substring(6, 12);
+			B[3] = Rtemp[i].substring(12, 18);
+			B[4] = Rtemp[i].substring(18, 24);
+			B[5] = Rtemp[i].substring(24, 30);
+			B[6] = Rtemp[i].substring(30, 36);
+			B[7] = Rtemp[i].substring(36, 42);
+			B[8] = Rtemp[i].substring(42);
 
 			// run B values thru sboxes.
 			String[] C = new String[9];
@@ -177,13 +184,13 @@ public class DES {
 			}
 			cFinal = cPermute(cFinal);
 			
-			R[i] = xor(L[i-1],keys[keys.length - i]); 
+			R[i] = xor(L[i-1],cFinal); 
 
 		}
 		
 		// inverse the initial permutation
-		String cypherText = pc1Inverse(R[15]+L[15]);
-		return cypherText;
+		String message = pc1Inverse(R[15]+L[15]);
+		return message;
 		
 	}
 
@@ -299,21 +306,6 @@ public class DES {
 	}
 	
 
-	// initial permutation
-	private String expansionP(String input) {
-		int[] p = { 58, 50, 42, 34, 26, 18, 10, 2, 50, 52, 44, 36, 28, 20, 12,
-				4, 62, 54, 46, 38, 30, 22, 14, 6, 64, 56, 48, 40, 32, 24, 16,
-				8, 57, 49, 41, 33, 25, 17, 9, 1, 59, 51, 43, 35, 27, 19, 11, 3,
-				61, 53, 45, 37, 29, 31, 13, 5, 63, 55, 47, 39, 31, 23, 15, 7 };
-
-		String m = "";
-
-		for (int i = 0; i < (p.length); i++) {
-			m += input.substring(p[i] - 1, p[i]);
-		}
-		return m;
-	}
-
 	// initial key permutation
 	private String keyPermutation1(String input) {
 		int[] p = { 57, 49, 41, 33, 25, 17, 9, 1, 58, 50, 42, 34, 26, 18, 10,
@@ -331,6 +323,19 @@ public class DES {
 
 	// final key permutation
 	private String keyPermutation2(String input) {
+		int[] p = { 14, 17, 11, 24, 1, 5, 3, 28, 15, 6, 21, 10, 23, 19, 12, 4,
+				26, 8, 16, 7, 27, 20, 13, 2, 41, 52, 31, 37, 47, 55, 30, 40,
+				51, 45, 33, 48, 44, 49, 39, 56, 34, 53, 46, 42, 50, 36, 29, 32 };
+
+		String k = "";
+
+		for (int i = 0; i < (p.length); i++) {
+			k += input.substring(p[i] - 1, p[i]);
+		}
+		return k;
+	}
+	
+	private String cPermutation(String input) {
 		int[] p = { 14, 17, 11, 24, 1, 5, 3, 28, 15, 6, 21, 10, 23, 19, 12, 4,
 				26, 8, 16, 7, 27, 20, 13, 2, 41, 52, 31, 37, 47, 55, 30, 40,
 				51, 45, 33, 48, 44, 49, 39, 56, 34, 53, 46, 42, 50, 36, 29, 32 };
